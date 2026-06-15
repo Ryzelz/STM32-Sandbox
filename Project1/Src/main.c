@@ -16,7 +16,9 @@
  ******************************************************************************
  */
 
-#include "gpio.h"
+#include <gpio.h>
+
+int prgm_state = OFF;
 
 int main(void)
 {
@@ -27,7 +29,9 @@ int main(void)
     /* Loop forever */
 	for(;;){
 		//nigg
-		led_toggle();
+		//led_toggle();
+		prgm_state_set(&prgm_state);
+		prgm_state_dsply(&prgm_state);
 
 	}
 }
