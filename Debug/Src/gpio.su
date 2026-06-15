@@ -1,0 +1,9 @@
+../Src/gpio.c:28:6:gpio_init	4	static
+../Src/gpio.c:58:6:red_led_on	4	static
+../Src/gpio.c:61:6:red_led_off	4	static
+../Src/gpio.c:64:6:blue_led_on	4	static
+../Src/gpio.c:67:6:blue_led_off	4	static
+../Src/gpio.c:70:6:led_toggle	8	static
+../Src/gpio.c:75:6:prgm_state_set	16	static
+../Src/gpio.c:86:6:prgm_state_dsply	16	static
+../Src/gpio.c:96:6:led_delay	16	static
