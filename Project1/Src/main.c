@@ -28,10 +28,14 @@ int main(void)
 
     /* Loop forever */
 	for(;;){
-		//led_toggle();
+		led_toggle();
+		/*
 		prgm_state_set(&prgm_state);
 		prgm_state_dsply(&prgm_state);
 		led_delay();
+		*/
+
+		prgm_state_loop();
 
 	}
 }

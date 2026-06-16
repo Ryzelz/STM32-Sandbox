@@ -93,6 +93,16 @@ void prgm_state_dsply(int * prgm_state){
 	}
 }
 
+void prgm_state_loop(){
+	for(;;){
+		red_led_on();
+		blue_led_off();
+		led_delay();
+		red_led_off();
+		blue_led_on();
+		led_delay();
+	}
+}
 void led_delay(void){
 	for(int x=0; x<150000; x++)
 		;
