@@ -46,7 +46,9 @@ void blue_led_off(void);
 void led_toggle(void);
 void prgm_state_set(int * prgm_state);
 void prgm_state_dsply(int * prgm_state);
+void prgm_state_loop(int * prgm_state);
 void led_delay(void);
+
 
 
 
