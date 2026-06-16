@@ -54,6 +54,20 @@ void gpio_init(void){
 	GPIOA_MODER |= (1U<<10);
 	GPIOA_MODER &= ~(1U<<11);
 
+	/* set alternate function register low, AFI */
+	// reference manual - GPIO alternate function low register
+	//alternate function for PA2, usart_tx
+	GPIOA_AFRL &= ~(1U<<8);
+	GPIOA_AFRL |= (1U<<9);
+	GPIOA_AFRL |= (1U<<10);
+	GPIOA_AFRL |= (1U<<12);
+
+	//alternative function for PA3, usart_rx
+	GPIOA_AFRL &= ~(1U<<12);
+	GPIOA_AFRL |= (1U<<13);
+	GPIOA_AFRL |= (1U<<14);
+	GPIOA_AFRL |= (1U<<15);
+
 }
 void red_led_on(void){
 	GPIOA_ODR |= RED_LED;
