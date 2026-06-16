@@ -86,10 +86,10 @@ void prgm_state_set(int * prgm_state){
 void prgm_state_dsply(int * prgm_state){
 	if(*prgm_state == OFF){
 		red_led_on();
-		blue_led_on();
+		blue_led_off();
 	}	else if(*prgm_state == ON){
 		red_led_off();
-		blue_led_off();
+		blue_led_on();
 	}
 }
 
