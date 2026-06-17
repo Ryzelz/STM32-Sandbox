@@ -16,26 +16,37 @@
  ******************************************************************************
  */
 
-#include <gpio.h>
+#include "gpio.h"
+#include "adc.h"
+#include "usart.h"
+
 
 int prgm_state = OFF;
+
+char buff[64];
+char adc_value;
 
 int main(void)
 {
 
 
 	gpio_init();
+	usart2_init();
+	adc_init();
+	adc_conversion();
 
     /* Loop forever */
 	for(;;){
 		led_toggle();
-		/*
+
 		prgm_state_set(&prgm_state);
 		prgm_state_dsply(&prgm_state);
 		led_delay();
-		*/
 
 		prgm_state_loop();
+
+		adc_sample_signal(buff, &prgm_state);
+		adc_value = buff;
 
 	}
 }

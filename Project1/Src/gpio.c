@@ -68,6 +68,9 @@ void gpio_init(void){
 	GPIOA_AFRL |= (1U<<14);
 	GPIOA_AFRL |= (1U<<15);
 
+	// set GPIOA to analog mode, PA0
+	GPIOA_MODER |= (3U<<0);
+
 }
 void red_led_on(void){
 	GPIOA_ODR |= RED_LED;
