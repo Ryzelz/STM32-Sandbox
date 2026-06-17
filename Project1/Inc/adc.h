@@ -8,9 +8,15 @@
 #ifndef ADC_H_
 #define ADC_H_
 
+#include "base.h"
+
+
 //refence manual - ADC status register
 #define ADC_SR_OFFSET		(0x00)
 #define ADC_SR				(*(volatile unsigned int *)(ADC_PERIPHERAL + ADC_SR_OFFSET))
+
+#define ADC_DR_OFFSET		(0x4C)
+#define ADC_DR				(*(volatile unsigned int *)(ADC_PERIPHERAL + ADC_DR_OFFSET))
 
 #define ADC_CR1_OFFSET		(0x04)
 #define ADC_CR1				(*(volatile unsigned int *)(ADC_PERIPHERAL + ADC_CR1_OFFSET))

@@ -41,12 +41,12 @@ int main(void)
 
 		prgm_state_set(&prgm_state);
 		prgm_state_dsply(&prgm_state);
-		led_delay();
+//		led_delay();
 
-		prgm_state_loop();
+		//prgm_state_loop();
 
 		adc_sample_signal(buff, &prgm_state);
-		adc_value = buff;
+		adc_value = *buff;
 
 	}
 }

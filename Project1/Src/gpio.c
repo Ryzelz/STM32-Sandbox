@@ -55,18 +55,27 @@ void gpio_init(void){
 	GPIOA_MODER &= ~(1U<<11);
 
 	/* set alternate function register low, AFI */
+
+	// GPIOA2 mode register - alternate function
+	GPIOA_MODER &= ~(1U<<4);
+	GPIOA_MODER |= (1U<<5);
+
+	// GPIOA3 mode register - alternate function
+	GPIOA_MODER &= ~(1U<<6);
+	GPIOA_MODER |= (1U<<7);
+
 	// reference manual - GPIO alternate function low register
 	//alternate function for PA2, usart_tx
+	GPIOA_AFRL &= ~(1U<<11);
 	GPIOA_AFRL &= ~(1U<<8);
 	GPIOA_AFRL |= (1U<<9);
 	GPIOA_AFRL |= (1U<<10);
-	GPIOA_AFRL |= (1U<<12);
 
 	//alternative function for PA3, usart_rx
+	GPIOA_AFRL &= ~(1U<<15);
 	GPIOA_AFRL &= ~(1U<<12);
 	GPIOA_AFRL |= (1U<<13);
 	GPIOA_AFRL |= (1U<<14);
-	GPIOA_AFRL |= (1U<<15);
 
 	// set GPIOA to analog mode, PA0
 	GPIOA_MODER |= (3U<<0);
@@ -89,7 +98,7 @@ void led_toggle(void){
 
 	led_delay();
 }
-void prgm_state_set(int * prgm_state){
+void prgm_state_set(int *prgm_state){
 	if(!(GPIOC_IDR & USER_BUTTON)){
 		if(*prgm_state == OFF){
 			*prgm_state = ON;

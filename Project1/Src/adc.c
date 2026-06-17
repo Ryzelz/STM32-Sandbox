@@ -5,11 +5,11 @@
  *      Author: ryzel
  */
 #include "adc.h"
-
-
+#include "gpio.h"
+#include "usart.h"
 
 /*enable bits*/
-#define SR_EOC				(1U<<2)
+#define SR_EOC				(1U<<1)
 
 #define CR2_SWSTART			(1U<<30)
 #define CR2_ADON			(1U<<0)
@@ -30,6 +30,8 @@ void adc_init(void){
 	//set data resolution
 	ADC_CR1 &= ~(1U<<24);
 	ADC_CR1 &= ~(1U<<25);
+
+	ADC_CR2 |= CR2_CONT;
 
 	// select the channel 0
 	ADC_SQR3 = ADC_CH0;
@@ -57,8 +59,8 @@ void adc_sample_signal(char * buff, int * prgm_state){
 	if (*prgm_state == ON){
 		char * ptr = buff;
 
-		for(int x=0; x=64; x++){
-			uart_btye = adc_read();
+		for(int x=0; x<64; x++){
+			uart_byte = adc_read();
 			byte_one = (uart_byte & 0xFF);
 
 			*buff++ = byte_one;
@@ -68,7 +70,7 @@ void adc_sample_signal(char * buff, int * prgm_state){
 }
 void adc_transmit_signal(char * buff){
 	for(int x=0; x<64; x++){
-		usart_write(*buff++);
+		usart2_write(*buff++);
 	}
 }
 
