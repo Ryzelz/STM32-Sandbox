@@ -21,7 +21,7 @@
 #include "usart.h"
 
 
-int prgm_state = OFF;
+int prgm_state = ON;
 
 char buff[64];
 char adc_value;
