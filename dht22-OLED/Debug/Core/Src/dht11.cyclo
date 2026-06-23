@@ -1,0 +1,6 @@
+../Core/Src/dht11.c:25:13:microDelay	2
+../Core/Src/dht11.c:32:6:DHT11_SetOutput	1
+../Core/Src/dht11.c:43:6:DHT11_SetInput	1
+../Core/Src/dht11.c:55:9:DHT11_Start	3
+../Core/Src/dht11.c:76:9:DHT11_Read	7
+../Core/Src/dht11.c:103:9:DHT11_GetData	3

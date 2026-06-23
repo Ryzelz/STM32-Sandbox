@@ -37,10 +37,6 @@
 #define GPIOC_IDR_OFFSET 		(0x10)
 #define GPIOC_IDR				(*(volatile unsigned int *)(GPIOC_PERIPHERAL + GPIOC_IDR_OFFSET))
 
-// Alternative function register
-#define GPIOA_AFRL_OFFSET 		(0x20)
-#define GPIOA_AFRL				(*(volatile unsigned int *)(GPIOA_PERIPHERAL + GPIOA_AFRL_OFFSET))
-
 
 void gpio_init(void);
 void red_led_on(void);
@@ -50,9 +46,7 @@ void blue_led_off(void);
 void led_toggle(void);
 void prgm_state_set(int * prgm_state);
 void prgm_state_dsply(int * prgm_state);
-void prgm_state_loop();
 void led_delay(void);
-
 
 
 
