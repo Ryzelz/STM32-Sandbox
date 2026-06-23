@@ -60,8 +60,8 @@ all: main-build
 main-build: LCD-Display-21.elf secondary-outputs
 
 # Tool invocations
-LCD-Display-21.elf LCD-Display-21.map: $(OBJS) $(USER_OBJS) C:\Users\ryzel\STM32CubeIDE\workspace_1.19.0\LCD-Display-21\STM32F401RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "LCD-Display-21.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\ryzel\STM32CubeIDE\workspace_1.19.0\LCD-Display-21\STM32F401RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LCD-Display-21.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+LCD-Display-21.elf LCD-Display-21.map: $(OBJS) $(USER_OBJS) C:\Users\ryzel\STM32CubeIDE\workspace_1.19.0\STM32-AqWaNeTIO-Project\LCD-Display-21\STM32F401RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "LCD-Display-21.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\ryzel\STM32CubeIDE\workspace_1.19.0\STM32-AqWaNeTIO-Project\LCD-Display-21\STM32F401RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LCD-Display-21.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
