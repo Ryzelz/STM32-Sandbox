@@ -10,8 +10,10 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include Drivers/STM32F4xx_HAL_Driver/Src/subdir.mk
+-include Core/UserDrivers/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
+-include Core/Peripherals/subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -34,34 +36,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := UserBTN-LED
+BUILD_ARTIFACT_NAME := MPU6050-I2C
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-UserBTN-LED.elf \
+MPU6050-I2C.elf \
 
 MAP_FILES += \
-UserBTN-LED.map \
+MPU6050-I2C.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-UserBTN-LED.list \
+MPU6050-I2C.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: UserBTN-LED.elf secondary-outputs
+main-build: MPU6050-I2C.elf secondary-outputs
 
 # Tool invocations
-UserBTN-LED.elf UserBTN-LED.map: $(OBJS) $(USER_OBJS) C:\Users\ryzel\STM32CubeIDE\workspace_1.19.0\STM32-AqWaNeTIO-Project\UserBTN-LED\STM32F401RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "UserBTN-LED.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\ryzel\STM32CubeIDE\workspace_1.19.0\STM32-AqWaNeTIO-Project\UserBTN-LED\STM32F401RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="UserBTN-LED.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+MPU6050-I2C.elf MPU6050-I2C.map: $(OBJS) $(USER_OBJS) C:\Users\ryzel\STM32CubeIDE\workspace_1.19.0\STM32-AqWaNeTIO-Project\MPU6050-I2C\STM32F401RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "MPU6050-I2C.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\ryzel\STM32CubeIDE\workspace_1.19.0\STM32-AqWaNeTIO-Project\MPU6050-I2C\STM32F401RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MPU6050-I2C.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -70,14 +72,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-UserBTN-LED.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "UserBTN-LED.list"
+MPU6050-I2C.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "MPU6050-I2C.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) UserBTN-LED.elf UserBTN-LED.list UserBTN-LED.map default.size.stdout
+	-$(RM) MPU6050-I2C.elf MPU6050-I2C.list MPU6050-I2C.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

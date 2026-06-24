@@ -1,0 +1,7 @@
+../Core/UserDrivers/mpu6050.c:32:6:mpu6050_init	16	static
+../Core/UserDrivers/mpu6050.c:56:9:mpu6050_get_x_axis_data	16	static
+../Core/UserDrivers/mpu6050.c:72:9:mpu6050_get_y_axis_data	16	static
+../Core/UserDrivers/mpu6050.c:88:9:mpu6050_get_z_axis_data	16	static
+../Core/UserDrivers/mpu6050.c:106:6:get_who_am_i	16	static
+../Core/UserDrivers/mpu6050.c:124:9:read_regsiter	24	static
+../Core/UserDrivers/mpu6050.c:138:6:write_regsiter	24	static
