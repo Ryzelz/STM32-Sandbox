@@ -42,6 +42,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+UART_HandleTypeDef huart2; //modified
+UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
 
@@ -49,6 +51,10 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+
+static void MX_GPIO_Init(void); //modified
+static void MX_USART2_UART_Init(void);
+static void MX_USART6_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -99,6 +105,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	HAL_UART_Transmit(&huart6, "Hello", 6, HAL_MAX_DELAY);
+	HAL_Delay(2000);
   }
   /* USER CODE END 3 */
 }
