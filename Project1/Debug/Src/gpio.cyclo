@@ -4,6 +4,6 @@
 ../Src/gpio.c:64:6:blue_led_on	1
 ../Src/gpio.c:67:6:blue_led_off	1
 ../Src/gpio.c:70:6:led_toggle	1
-../Src/gpio.c:75:6:prgm_state_set	4
-../Src/gpio.c:86:6:prgm_state_dsply	3
-../Src/gpio.c:96:6:led_delay	2
+../Src/gpio.c:76:6:prgm_state_set	4
+../Src/gpio.c:87:6:prgm_state_dsply	3
+../Src/gpio.c:97:6:led_delay	2

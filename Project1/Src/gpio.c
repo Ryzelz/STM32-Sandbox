@@ -14,7 +14,7 @@
 #define GPIOCEN		(1U<<2)
 
 //ref man - GPIO port output data register
-#define GPIOA8		(1U<<8)
+#define GPIOA8		(1U<<9)
 #define GPIOB5		(1U<<5)
 //ref man - GPIO port input data register
 #define GPIOC13		(1U<<13)
@@ -26,7 +26,7 @@
 #define USER_LED 	GPIOA5
 
 void gpio_init(void){
-	/* Enable clock access to GPIO ports ie A, B C*/
+	/*wnable clock access to GPIO ports ie A, B C*/
 
 	// enable clock GPIO
 
@@ -38,15 +38,15 @@ void gpio_init(void){
 
 	//Set the mode of the Pins
 	// refernece manual - GPIO port mode register
-	//red led, GPIO8, output
-	GPIOA_MODER |= (1U<<16); //1
-	GPIOA_MODER &= ~(1U<<17); //0
+	//red led, GPIOA8, output
+	GPIOA_MODER |= (1U<<18); //1
+	GPIOA_MODER &= ~(1U<<19); //0
 
-	//blue led, GPIO5, output
+	//blue led, GPIOB5, output
 	GPIOB_MODER |= (1U<<10);
 	GPIOB_MODER &= ~(1U<<11);
 
-	// input button, GPIO13, input
+	// input button, GPIOC13, input
 	GPIOC_MODER &= ~(1U<<26);
 	GPIOC_MODER &= ~(1U<<27);
 
@@ -72,6 +72,7 @@ void led_toggle(void){
 
 	led_delay();
 }
+//initialized
 void prgm_state_set(int * prgm_state){
 	if(!(GPIOC_IDR & USER_BUTTON)){
 		if(*prgm_state == OFF){
@@ -85,10 +86,10 @@ void prgm_state_set(int * prgm_state){
 }
 void prgm_state_dsply(int * prgm_state){
 	if(*prgm_state == OFF){
-		red_led_on();
+		red_led_off();
 		blue_led_on();
 	}	else if(*prgm_state == ON){
-		red_led_off();
+		red_led_on();
 		blue_led_off();
 	}
 }
