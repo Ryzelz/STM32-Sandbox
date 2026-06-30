@@ -20,7 +20,7 @@
 #include "main.h"
 #include "usart.h"
 #include "gpio.h"
-
+#include <string.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -43,7 +43,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2; //modified
-UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
 
@@ -52,9 +51,7 @@ UART_HandleTypeDef huart6;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 
-static void MX_GPIO_Init(void); //modified
-static void MX_USART2_UART_Init(void);
-static void MX_USART6_UART_Init(void);
+void Error_Handler(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -73,6 +70,8 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
 
+
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -80,7 +79,11 @@ int main(void)
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
+
   /* USER CODE BEGIN Init */
+	SystemClock_Config();
+	MX_GPIO_Init();
+	MX_USART6_UART_Init();
 
   /* USER CODE END Init */
 
@@ -88,6 +91,11 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
+
+  HAL_GPIO_WritePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin, GPIO_PIN_SET);
+
+  HAL_UART_Receive_IT(&huart6, (uint8_t *)&Rx_byte, 1);
+  last_rx_time = HAL_GetTick();
 
   /* USER CODE END SysInit */
 
@@ -105,8 +113,20 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	HAL_UART_Transmit(&huart6, "Hello", 6, HAL_MAX_DELAY);
-	HAL_Delay(2000);
+	  if ((HAL_GetTick() - last_rx_time) > LED_TIMEOUT_MS)
+	  {
+		HAL_GPIO_WritePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin, GPIO_PIN_SET);
+	  }
+
+	  if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_SET)
+	  {
+		HAL_UART_Transmit(&huart6, (uint8_t*)tx_data, strlen(tx_data), HAL_MAX_DELAY);
+		HAL_Delay(100);
+	  }
+
+	  HAL_Delay(10);
+
+
   }
   /* USER CODE END 3 */
 }

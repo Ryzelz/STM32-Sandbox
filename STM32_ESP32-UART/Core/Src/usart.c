@@ -22,7 +22,7 @@
 #include <string.h>
 #include <stdio.h>
 
-UART_Handle_TypeDef huart6;
+UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN 0 */
 char Rx_byte;
@@ -57,7 +57,7 @@ void MX_USART6_UART_Init(void)
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 	GPIO_InitStruct.Alternate = GPIO_AF8_USART6;
-	HAL_GPIO_Init(GPIOA, GPIO_InitStruct);
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USER CODE END USART6_Init 1 */
   huart6.Instance = USART6;
@@ -95,14 +95,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		last_rx_time = HAL_GetTick();
 
 		//send the confirmation back to the esp 32
-		sprintf(Tx_confimation_buffer, "STM: Recieved: Byte: %c\n%", Rx_byte);
+		sprintf(Tx_confirmation_buffer, "STM: Recieved: Byte: %c\n", Rx_byte);
 		HAL_UART_Transmit(&huart6, (uint8_t*)Tx_confirmation_buffer, strlen(Tx_confirmation_buffer), HAL_MAX_DELAY);
 
 		//do not touch n-
 		//re-enable reception for the NE XT byte
 		//remove it and the UART only recieve one byte and stop
 
-		HAL_UART_Recieve_IT(&huart6, (uint8_t *)&Rx_byte, 1);
+		HAL_UART_Receive_IT(&huart6, (uint8_t *)&Rx_byte, 1);
 	 }
 
 }
