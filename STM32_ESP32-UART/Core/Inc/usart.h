@@ -35,12 +35,25 @@ extern "C" {
 extern UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN Private defines */
+#define STATUS_LED_GPIO_Port GPIOA
+#define STATUS_LED_Pin       GPIO_PIN_5
+
+#define LED_TIMEOUT_MS 200
+
+extern char Rx_byte;
+extern char Tx_confirmation_buffer[32];
+extern uint32_t last_rx_time;
+extern char tx_data[];
 
 /* USER CODE END Private defines */
 
 void MX_USART6_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+
+void MX_GPIO_Init(void);
+void MPU_Config(void);
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 
 /* USER CODE END Prototypes */
 

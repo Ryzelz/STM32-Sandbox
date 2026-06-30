@@ -19,9 +19,17 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "usart.h"
+#include <string.h>
+#include <stdio.h>
+
+UART_Handle_TypeDef huart6;
 
 /* USER CODE BEGIN 0 */
+char Rx_byte;
+char Tx_confirmation_buffer[32];
+uint32_t last_rx_time;
 
+char tx_data[] = "HELLO ESP32\r\n";
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart6;
@@ -36,6 +44,20 @@ void MX_USART6_UART_Init(void)
   /* USER CODE END USART6_Init 0 */
 
   /* USER CODE BEGIN USART6_Init 1 */
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+
+	//USART6 GPIO COnfiG
+	//PA11 - USART6 TX
+	//PA12 - USART6 RX
+
+	GPIO_InitStruct.Pin = GPIO_PIN_11 | GPIO_PIN_12;
+	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_InitStruct.Alternate = GPIO_AF8_USART6;
+	HAL_GPIO_Init(GPIOA, GPIO_InitStruct);
 
   /* USER CODE END USART6_Init 1 */
   huart6.Instance = USART6;
@@ -55,6 +77,37 @@ void MX_USART6_UART_Init(void)
   /* USER CODE END USART6_Init 2 */
 
 }
+
+/* USER CODE BEGIN USART Init 3 */
+
+// UART INTERRUPT CALLBACK FUNCTION
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+// Check if the interrupt came from the correct UART (huart6)
+	if (huart->Instance == huart6.Instance){
+
+		//if LED is active HIGH (normal, use GPIO_PIN_SET
+		// if it's the Nucleo blue LED (PC23, active low), use GPIO_PIN_RESET
+		HAL_GPIO_WritePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin, GPIO_PIN_RESET);
+
+		//Update the time of the last byte reception
+		// it resets the counter for led timeput
+		last_rx_time = HAL_GetTick();
+
+		//send the confirmation back to the esp 32
+		sprintf(Tx_confimation_buffer, "STM: Recieved: Byte: %c\n%", Rx_byte);
+		HAL_UART_Transmit(&huart6, (uint8_t*)Tx_confirmation_buffer, strlen(Tx_confirmation_buffer), HAL_MAX_DELAY);
+
+		//do not touch n-
+		//re-enable reception for the NE XT byte
+		//remove it and the UART only recieve one byte and stop
+
+		HAL_UART_Recieve_IT(&huart6, (uint8_t *)&Rx_byte, 1);
+	 }
+
+}
+
+/* USER CODE END USART Init 3 */
 
 void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 {
