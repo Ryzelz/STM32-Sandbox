@@ -29,7 +29,7 @@ char Rx_byte;
 char Tx_confirmation_buffer[32];
 uint32_t last_rx_time;
 
-char tx_data[] = "HELLO ESP32\r\n";
+char tx_data[] = "nIG- \r\n";
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart6;
@@ -95,7 +95,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		last_rx_time = HAL_GetTick();
 
 		//send the confirmation back to the esp 32
-		sprintf(Tx_confirmation_buffer, "STM: Recieved: Byte: %c\n", Rx_byte);
+		sprintf(Tx_confirmation_buffer, "STM: Received: Byte: %c\n", Rx_byte);
 		HAL_UART_Transmit(&huart6, (uint8_t*)Tx_confirmation_buffer, strlen(Tx_confirmation_buffer), HAL_MAX_DELAY);
 
 		//do not touch n-

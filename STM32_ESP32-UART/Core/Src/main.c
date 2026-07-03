@@ -118,13 +118,17 @@ int main(void)
 		HAL_GPIO_WritePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin, GPIO_PIN_SET);
 	  }
 
+	  //Rx message
+
+
+
 	  if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_SET)
 	  {
 		HAL_UART_Transmit(&huart6, (uint8_t*)tx_data, strlen(tx_data), HAL_MAX_DELAY);
 		HAL_Delay(100);
 	  }
 
-	  HAL_Delay(10);
+	  HAL_Delay(1000);
 
 
   }
