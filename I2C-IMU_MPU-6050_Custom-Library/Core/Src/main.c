@@ -17,7 +17,6 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include <MPU6050.h>
 #include "main.h"
 #include "i2c.h"
 #include "usart.h"
@@ -25,9 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "MPU6050.h"
-#include <stdio.h>
-#include <string.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,7 +45,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-MPU6050 imu;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -94,27 +91,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-  uint8_t initStatus = MPU6050_Initialise(&imu, &hi2c1);
 
-  char msgBuf[128];
-  uint16_t msgLen;
-
-  if (initStatus == 255)
-  {
-    msgLen = snprintf(msgBuf, sizeof(msgBuf), "MPU6050 not found! Check wiring.\r\n");
-    HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, msgLen, HAL_MAX_DELAY);
-    Error_Handler();
-  }
-  else if (initStatus > 0)
-  {
-    msgLen = snprintf(msgBuf, sizeof(msgBuf), "MPU6050 found but %d I2C error(s) during init.\r\n", initStatus);
-    HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, msgLen, HAL_MAX_DELAY);
-  }
-  else
-  {
-    msgLen = snprintf(msgBuf, sizeof(msgBuf), "MPU6050 initialised successfully.\r\n");
-    HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, msgLen, HAL_MAX_DELAY);
-  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -124,25 +101,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  /* Read accelerometer */
-	  MPU6050_ReadAccelerations(&imu);
-
-	  /* Read gyroscope */
-	  MPU6050_ReadGyroscope(&imu);
-
-	  /* Read temperature */
-	  MPU6050_ReadTemperature(&imu);
-
-	  /* Transmit all readings over UART */
-	  msgLen = snprintf(msgBuf, sizeof(msgBuf),
-	      "Acc(m/s2) X:%.2f Y:%.2f Z:%.2f | Gyro(dps) X:%.2f Y:%.2f Z:%.2f | Temp:%.2fC\r\n",
-	      imu.acc_mps2[0], imu.acc_mps2[1], imu.acc_mps2[2],
-	      imu.gyro_dps[0], imu.gyro_dps[1], imu.gyro_dps[2],
-	      imu.temp_C);
-
-	  HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, msgLen, HAL_MAX_DELAY);
-
-	  HAL_Delay(250); /* Read at ~4Hz */
   }
   /* USER CODE END 3 */
 }

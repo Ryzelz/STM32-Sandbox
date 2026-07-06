@@ -1,7 +1,7 @@
-../Core/Src/MPU6050.c:23:9:MPU6050_Initialise	2
-../Core/Src/MPU6050.c:115:19:MPU6050_ReadTemperature	1
-../Core/Src/MPU6050.c:146:19:MPU6050_ReadAccelerations	1
-../Core/Src/MPU6050.c:184:19:MPU6050_ReadGyroscope	1
-../Core/Src/MPU6050.c:225:19:MPU6050_ReadRegister	1
-../Core/Src/MPU6050.c:230:19:MPU6050_ReadRegisters	1
-../Core/Src/MPU6050.c:235:19:MPU6050_WriteRegister	1
+../Core/Src/mpu6050.c:11:9:MPU6050_Initialise	2
+../Core/Src/mpu6050.c:93:19:MPU6050_ReadTemperature	1
+../Core/Src/mpu6050.c:118:19:MPU6050_ReadAccelerations	1
+../Core/Src/mpu6050.c:147:19:MPU6050_ReadGyroscope	1
+../Core/Src/mpu6050.c:180:19:MPU6050_ReadRegister	1
+../Core/Src/mpu6050.c:186:19:MPU6050_ReadRegisters	1
+../Core/Src/mpu6050.c:192:19:MPU6050_WriteRegister	1
