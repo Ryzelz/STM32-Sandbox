@@ -24,8 +24,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
-#include <stdio.h>
+#include "string.h"
+#include "stdio.h"
 #include "MPU6050.h"
 
 
@@ -54,8 +54,7 @@
 
 MPU6050 imu;
 
-char uartBuf[54];
-uint32_t timerlog;
+char buff[64];
 
 /* USER CODE END PV */
 
@@ -104,9 +103,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   MPU6050_Initialise( &imu, &hi2c1 );
-
-  timerlog = HAL_GetTick();
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -117,19 +113,15 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  if ( (HAL_GetTick() - timerlog) >= SAMPLE_TIME_LOG_MS ) {
+	  MPU6050_ReadTemperature(&imu);
+	  MPU6050_ReadAccelerations(&imu);
+	  MPU6050_ReadGyroscope(&imu);
 
-	  		MPU6050_ReadTemperature( &imu );
-	  		MPU6050_ReadAccelerations( &imu );
-	  		MPU6050_ReadGyroscope( &imu );
+	  sprintf(buff, "%.2f,%.2f,%.2f,%.2f\r\n",
+			  imu.acc_mps2[0], imu.acc_mps2[1], imu.acc_mps2[2], imu.temp_C);
 
-	  		uint8_t uartBufLen = snprintf( uartBuf, 64, "%.2f,%.2f,%.2f,%.2f\r\n",
-	  				imu.acc_mps2[0], imu.acc_mps2[1], imu.acc_mps2[2], imu.temp_C );
-	  		HAL_UART_Transmit( &huart2, (uint8_t *) uartBuf, uartBufLen, HAL_MAX_DELAY );
-
-	  		timerlog += SAMPLE_TIME_LOG_MS;
-
-	  	}
+	  HAL_UART_Transmit(&huart2, (uint8_t *)buff, strlen(buff), HAL_MAX_DELAY);
+	  HAL_Delay(100);
   /* USER CODE END 3 */
 }
 }

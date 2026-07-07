@@ -60,8 +60,8 @@ all: main-build
 main-build: LED-test.elf secondary-outputs
 
 # Tool invocations
-LED-test.elf LED-test.map: $(OBJS) $(USER_OBJS) C:\Users\ryzel\STM32CubeIDE\workspace_2.1.1\LED-test\STM32F401RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "LED-test.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\ryzel\STM32CubeIDE\workspace_2.1.1\LED-test\STM32F401RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LED-test.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+LED-test.elf LED-test.map: $(OBJS) $(USER_OBJS) C:\Users\ryzel\STM32CubeIDE\workspace_2.1.1\STM32-AqWaNeTIO-Project\LED-test\STM32F401RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "LED-test.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\ryzel\STM32CubeIDE\workspace_2.1.1\STM32-AqWaNeTIO-Project\LED-test\STM32F401RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LED-test.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

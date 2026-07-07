@@ -53,7 +53,7 @@ uint8_t MPU6050_Initialise( MPU6050 *dev, I2C_HandleTypeDef *i2cHandle ) {
 	 */
 	regData = 0x07;
 
-	status = MPU6050_WriteRegister( dev, MPU6050_REG_SMPLRT_DIV, &regData );
+	status = MPU6050_WriteRegister( dev, MPU6050_REG_SMPRT_DIV, &regData );
 	errNum += ( status != HAL_OK );
 
 	/*
