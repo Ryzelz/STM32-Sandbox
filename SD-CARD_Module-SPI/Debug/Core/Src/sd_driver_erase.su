@@ -1,0 +1,2 @@
+../Core/Src/sd_driver_erase.c:9:10:sd_card_set_erasable_area	48	static
+../Core/Src/sd_driver_erase.c:26:10:sd_card_erase	32	static

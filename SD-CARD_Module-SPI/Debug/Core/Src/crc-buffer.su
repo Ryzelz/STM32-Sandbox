@@ -1,0 +1,2 @@
+../Core/Src/crc-buffer.c:9:1:crc_buffer_calculate_crc_7	32	static
+../Core/Src/crc-buffer.c:34:1:crc_buffer_calculate_crc_16	32	static

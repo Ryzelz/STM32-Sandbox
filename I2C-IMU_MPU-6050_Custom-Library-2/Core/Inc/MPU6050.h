@@ -8,18 +8,14 @@
 #ifndef INC_MPU6050_H_
 #define INC_MPU6050_H_
 
-#include "stm32f4xx_hal.h" /* Needed for I2C */
+#include "stm32f4xx_hal.h"
 
-/*
- * DEFINES
- */
+// DEFINES
 #define MPU6050_I2C_ADDR		(0x68 << 1)
 #define MPU6050_DEVICE_ID		0x68
 
 
 //REGISTERS
-
-
 #define MPU6050_REG_SELF_TEST_X         0x0D        /**< self test x register */
 #define MPU6050_REG_SELF_TEST_Y         0x0E        /**< self test y register */
 #define MPU6050_REG_SELF_TEST_Z         0x0F        /**< self test z register */
@@ -87,9 +83,9 @@
 
 
 
-/*
- * SENSOR STRUCT
- */
+
+// SENSOR STRUCT
+
 typedef struct {
 	// I2C handle
 	I2C_HandleTypeDef *i2cHandle;
@@ -104,21 +100,18 @@ typedef struct {
 	float temp_C;
 } MPU6050;
 
-/*
- * INITIALISATION
- */
+
+// INITIALIZATION
 uint8_t MPU6050_Initialise( MPU6050 *dev, I2C_HandleTypeDef *i2cHandle );
 
-/*
- * DATA ACQUISITION
- */
+
+// DATA ACQUISITION
 HAL_StatusTypeDef MPU6050_ReadTemperature( MPU6050 *dev );
 HAL_StatusTypeDef MPU6050_ReadAccelerations( MPU6050 *dev );
 HAL_StatusTypeDef MPU6050_ReadGyroscope( MPU6050 *dev );
 
-/*
- * LOW-LEVEL FUNCTIONS
- */
+
+// LOW-LEVEL FUNCTIONS
 HAL_StatusTypeDef MPU6050_ReadRegister(  MPU6050 *dev, uint8_t reg, uint8_t *data );
 HAL_StatusTypeDef MPU6050_ReadRegisters( MPU6050 *dev, uint8_t reg, uint8_t *data, uint8_t length );
 HAL_StatusTypeDef MPU6050_WriteRegister( MPU6050 *dev, uint8_t reg, uint8_t *data );

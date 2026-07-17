@@ -1,0 +1,11 @@
+../Core/Src/sd_driver_secondary.c:11:10:sd_card_receive_byte	32	static
+../Core/Src/sd_driver_secondary.c:23:10:sd_card_receive_bytes	32	static
+../Core/Src/sd_driver_secondary.c:37:10:sd_card_transmit_byte	16	static
+../Core/Src/sd_driver_secondary.c:47:10:sd_card_transmit_bytes	32	static
+../Core/Src/sd_driver_secondary.c:61:12:sd_card_get_cmd_without_crc	40	static
+../Core/Src/sd_driver_secondary.c:78:12:sd_card_get_cmd	32	static
+../Core/Src/sd_driver_secondary.c:90:10:sd_card_receive_data_block	40	static
+../Core/Src/sd_driver_secondary.c:122:10:sd_card_wait_response	32	static
+../Core/Src/sd_driver_secondary.c:142:10:sd_card_receive_cmd_response	32	static
+../Core/Src/sd_driver_secondary.c:173:10:sd_card_get_csd	32	static
+../Core/Src/sd_driver_secondary.c:196:10:sd_card_set_block_len	48	static

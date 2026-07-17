@@ -1,0 +1,2 @@
+../Core/Src/sd_driver_read.c:10:10:sd_card_read_data	40	static
+../Core/Src/sd_driver_read.c:43:10:sd_card_read_multiple_data	56	static

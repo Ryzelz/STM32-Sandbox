@@ -54,7 +54,7 @@
 
 MPU6050 imu;
 
-char buff[128];
+char buff[128]; //change if output is too long
 
 /* USER CODE END PV */
 
@@ -116,19 +116,21 @@ int main(void)
 	  MPU6050_ReadTemperature(&imu);
 	  MPU6050_ReadAccelerations(&imu);
 	  MPU6050_ReadGyroscope(&imu);
-	  // X m/s^2, Y m/s^2  , Z m/s^2, Temp
+	  // X m/s^2, Y m/s^2, Z m/s^2, Temp
 	  sprintf(buff,
 			  "MPU6050\r\n"
-			  "%.2f m/s2 ,%.2f m/s2,%.2f m/s2,\r\n"
-			  "%.2f C,\r\n"
-			  "%.2f d/s, %.2f d/s ,%.2f d/s"
+			  "x: %.2f ,y: %.2f,z: %.2f,\r\n"
+			  "T: %.2f C,\r\n"
+			  "X: %.2f,Y: %.2f,Z: %.2f"
 			  "\r\n",
-			  imu.acc_mps2[0], imu.acc_mps2[1], imu.acc_mps2[2], imu.temp_C, imu.gyro_dps[0], imu.gyro_dps[1], imu.gyro_dps[2]);
+			  imu.acc_mps2[0], imu.acc_mps2[1], imu.acc_mps2[2],
+			  imu.temp_C,
+			  imu.gyro_dps[0], imu.gyro_dps[1], imu.gyro_dps[2]);
 
 	  HAL_UART_Transmit(&huart2, (uint8_t *)buff, strlen(buff), HAL_MAX_DELAY);
-	  HAL_Delay(100);
+	  HAL_Delay(500);
   /* USER CODE END 3 */
-}
+  }
 }
 
 /**

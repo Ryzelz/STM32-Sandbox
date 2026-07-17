@@ -1,0 +1,7 @@
+../Core/Src/sd_driver_init.c:16:17:sd_card_power_on	2
+../Core/Src/sd_driver_init.c:32:17:sd_card_enter_spi_mode	6
+../Core/Src/sd_driver_init.c:71:17:sd_card_crc_on_off	2
+../Core/Src/sd_driver_init.c:87:17:sd_card_v1_init_process	6
+../Core/Src/sd_driver_init.c:131:17:sd_card_v2_init_process	6
+../Core/Src/sd_driver_init.c:180:10:sd_card_reset	6
+../Core/Src/sd_driver_init.c:221:10:sd_card_get_common_info	3
