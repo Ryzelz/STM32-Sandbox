@@ -11,14 +11,14 @@
   *
   * This software is licensed under terms that can be found in the LICENSE file
   * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
+  * If no LICENSE f	ile comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "fatfs.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -75,6 +75,12 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+	FRESULT res;
+	uint32_t byteswritten, bytesread;
+	uint8_t wtext[] = "STM32 FATFS works great!";
+	uint8_t rtext[_MAX_SS];
+
+
 
   /* USER CODE END 1 */
 
@@ -110,6 +116,25 @@ int main(void)
 
   /* Initialize all configured peripherals */
   /* USER CODE BEGIN 2 */
+
+  if(f_mount(&SDFatFS, (TCHAR const*)SDPath, 0) != FR_OK)
+  {
+	  Error_Handler();
+  }
+  else
+  {
+	  if(f_mkfs((TCHAR const*)SDPath, FM_AN, 0, rtext, sizeof(rtext)) != FR_OK){
+		  Error_Handler();
+	  }
+	  else
+	  {
+		  if(f_open(&SDFile, "STM32.TXT", FA_CREATE_ALWAYS | FA_WRITE) != FR_OK)
+		  {
+			  Error_Handler();
+		  }
+
+	  }
+  }
 
   /* USER CODE END 2 */
 

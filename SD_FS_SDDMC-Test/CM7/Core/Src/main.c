@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "fatfs.h"
+#include "i2c.h"
 #include "sdmmc.h"
 #include "gpio.h"
 
@@ -80,6 +81,10 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+	FRESULT res;
+	uint32_t byteswritten, bytesread;
+	uint8_t wtext[] = "STM32 FATFS works great!";
+	uint8_t rtext[_MAX_SS];
 
   /* USER CODE END 1 */
 /* USER CODE BEGIN Boot_Mode_Sequence_0 */
@@ -141,7 +146,27 @@ Error_Handler();
   MX_GPIO_Init();
   MX_SDMMC2_SD_Init();
   MX_FATFS_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+
+  if(f_mount(&SDFatFS, (TCHAR const*)SDPath, 0) != FR_OK)
+  {
+	  Error_Handler();
+  }
+  else
+  {
+	  if(f_mkfs((TCHAR const*)SDPath, FM_ANY, 0, rtext, sizeof(rtext)) != FR_OK){
+		  Error_Handler();
+	  }
+	  else
+	  {
+		  if(f_open(&SDFile, "STM32.TXT", FA_CREATE_ALWAYS | FA_WRITE) != FR_OK)
+		  {
+			  Error_Handler();
+		  }
+
+	  }
+  }
 
   /* USER CODE END 2 */
 
