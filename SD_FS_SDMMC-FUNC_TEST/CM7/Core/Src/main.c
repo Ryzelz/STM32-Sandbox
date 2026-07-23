@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2026 STMicroelectronics.
+  * Copyright (c) 2022 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -24,7 +24,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
+#include <string.h>
+#include "RingBuffer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -35,17 +37,20 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-/* DUAL_CORE_BOOT_SYNC_SEQUENCE: Define for dual core boot synchronization    */
-/*                             demonstration code based on hardware semaphore */
-/* This define is present in both CM7/CM4 projects                            */
-/* To comment when developping/debugging on a single core                     */
-#define DUAL_CORE_BOOT_SYNC_SEQUENCE
+/* Sampling frequency of ADC/period of timer */
+#define SAMP_FREQ 			    40000
 
-#if defined(DUAL_CORE_BOOT_SYNC_SEQUENCE)
-#ifndef HSEM_ID_0
-#define HSEM_ID_0 (0U) /* HW semaphore 0*/
-#endif
-#endif /* DUAL_CORE_BOOT_SYNC_SEQUENCE */
+/* DMA buffer length. Since app uses double buffer, amount of time to transmit ADC data to SD card is
+ * ( 1 / SAMP_FREQ ) * ( DMA_BUFF_LENGTH / 2)
+ * Make buffer length a power of 2 */
+#define DMA_BUFF_LENGTH		  8192
+
+/*
+ * The size of the ring buffer in terms of DMA buffer lengths
+ * ie. if RING_BUFFER_CHUNKS = 2, total length of ring buffer is DDMA_BUFF_LENGTH * RING_BUFFER_CHUNKS
+ */
+#define RING_BUFFER_CHUNKS  8
+
 
 /* USER CODE END PD */
 
@@ -58,6 +63,53 @@
 
 /* USER CODE BEGIN PV */
 
+/* Lookup table for decimal to string conversion
+ * doing two digits at a time reduces number of divides, improving performance
+ */
+static const char digits_LUT[201] =
+
+  "0001020304050607080910111213141516171819"
+
+  "2021222324252627282930313233343536373839"
+
+  "4041424344454647484950515253545556575859"
+
+  "6061626364656667686970717273747576777879"
+
+  "8081828384858687888990919293949596979899";
+
+Ring_Buffer_t hRingBuff =
+  {
+      .BytesPerSample =   2,                    // 12 bit ADC data will use 16-bit data buffer
+      .MaxNumSamples =    DMA_BUFF_LENGTH * RING_BUFFER_CHUNKS,  // make larger than DMA buffer to help avoid data loss
+
+      /* clear all index variables */
+      .readIdx =          0,
+      .writeIdx =         0,
+      .availableSamples = 0
+  };
+
+uint32_t RingBufferErrorCode;
+
+
+
+FRESULT res; /* FatFs function common result code */
+UINT byteswritten; /* File write/read counts */
+const char header[] = "adc_value\n";  /* CSV Column Labels */
+char str_buf[16];
+uint8_t workBuffer[_MAX_SS];
+FIL ADC_data_file;
+
+volatile uint16_t adc_dma_buf[DMA_BUFF_LENGTH];
+uint16_t *ConsumeBuff;
+
+uint8_t write_adc_data = 0;
+int file_num = 0;
+uint32_t str_len;
+
+int ADCStrlength;
+char ADCValStr[16];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -65,10 +117,38 @@ void SystemClock_Config(void);
 static void MPU_Config(void);
 /* USER CODE BEGIN PFP */
 
+/*
+ * Control the sampling frequncy of ADC by adjusting timer parameters.
+ */
+void SetSamplingFrequency(uint32_t freq);
+
+/*
+ * Initialize File System and Link low level SD drivers
+ */
+FRESULT InitFileSystem(void);
+
+// Custom fast itoa function
+int fast4DigitDecToStr(uint32_t value, char* dst);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/*
+ * Default generated SD detection does not work. Redefined weakly defined function here
+ */
+uint8_t BSP_SD_IsDetected(void)
+{
+  __IO uint8_t status = SD_PRESENT;
+
+  if( HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == GPIO_PIN_RESET)
+  {
+	  status = SD_NOT_PRESENT;
+  }
+
+  return status;
+}
 
 /* USER CODE END 0 */
 
@@ -80,6 +160,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+
 
   /* USER CODE END 1 */
 /* USER CODE BEGIN Boot_Mode_Sequence_0 */
@@ -143,12 +224,158 @@ Error_Handler();
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 
+  // Program will not start until there is an SD card present
+  while (!BSP_SD_IsDetected()) {}
+
+  // Link SD drivers to file system
+  res = InitFileSystem();
+
+  if (res != FR_OK)
+  {
+    // Error initializing file system
+    Error_Handler();
+  }
+
+  // Set the sampling frequency of the ADC by setting timer frequency
+  SetSamplingFrequency(SAMP_FREQ);
+
+  // Allocate the memory for the ring buffer
+  RingBufferErrorCode = RingBuffer_alloc(&hRingBuff);
+
+  if ( RingBufferErrorCode != RB_ERR_OK )
+  {
+    Error_Handler();
+  }
+
+  // Start timer that triggers ADC
+  if (HAL_TIM_Base_Start(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  // Calibrate ADC
+  if (HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  // Start the ADC DMA transfer
+  if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_dma_buf, DMA_BUFF_LENGTH) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+    // Start writing ADC data when button is pressed, flag toggled in EXTI ISR
+    if (write_adc_data)
+    {
+      file_num++;
+
+      // green LED indicates that file writing process is ongoing
+      HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+
+      str_len = sprintf(str_buf, "ADCVals%d.csv", file_num);
+
+      char file_name[str_len+1];
+
+      // Necessary to make sure string is NULL terminated
+      for (uint32_t i = 0; i < str_len + 1; i++)
+      {
+          file_name[i] = str_buf[i];
+      }
+
+      res = f_open(&ADC_data_file, file_name, FA_CREATE_ALWAYS | FA_WRITE);
+
+      if( res == FR_OK)
+      {
+        res = f_write(&ADC_data_file, header, sizeof(header), &byteswritten);
+        if (res != FR_OK)
+        {
+          Error_Handler();
+        }
+
+
+        /* Write ADC data into file until the button is pressed again */
+        while ( write_adc_data )
+        {
+
+          // Avoid underflow of ring buffer
+          if ( hRingBuff.availableSamples > 0 )
+          {
+            ConsumeBuff = (uint16_t *)RingBuffer_consume(&hRingBuff, DMA_BUFF_LENGTH/2);
+
+            /* Extra safety net.
+             * Should be hit since above conditionals checks or available samples
+             */
+            if (ConsumeBuff == NULL)
+            {
+              Error_Handler();
+            }
+
+            for (uint32_t i = 0; i < DMA_BUFF_LENGTH/2; i++)
+            {
+              /*
+               * Custom itoa implementation, only works for base 10 decimal less than 5 digits.
+               */
+              ADCStrlength = fast4DigitDecToStr((int)ConsumeBuff[i], ADCValStr);
+
+              ADCValStr[ADCStrlength] = '\n';
+
+              // Write longer than string end to include null terminator
+              res = f_write(&ADC_data_file, ADCValStr, (ADCStrlength + 1), &byteswritten);
+
+            }
+          }
+
+        }
+
+        /*
+         * If the above while loop finishes executing and there are still samples left in the ring buffer,
+         * finish writing the remaining samples to the file
+         */
+        if ( hRingBuff.availableSamples > 0 )
+        {
+          while (hRingBuff.availableSamples > 0)
+          {
+
+            ConsumeBuff = (uint16_t *)RingBuffer_consume(&hRingBuff, DMA_BUFF_LENGTH/2);
+
+            /* Extra safety net.
+             * Should be hit since above conditionals checkf or available samples
+             */
+            if (ConsumeBuff == NULL)
+            {
+              Error_Handler();
+            }
+
+            for (uint32_t i = 0; i < DMA_BUFF_LENGTH/2; i++)
+            {
+
+              ADCStrlength = fast4DigitDecToStr((int)ConsumeBuff[i], ADCValStr);
+
+              ADCValStr[ADCStrlength] = '\n';
+
+              res = f_write(&ADC_data_file, ADCValStr, (ADCStrlength + 1), &byteswritten);
+
+            }
+
+          }
+        }
+
+        f_close(&ADC_data_file);
+      }
+
+      // Turn off green LED to indicate file isn't being written to any longer
+      HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+
+    }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -217,6 +444,174 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+void SetSamplingFrequency(uint32_t freq)
+{
+	uint32_t prescaler = 0;
+
+	// 120MHz clock frequency
+	uint32_t ARRval = (120000000 / ( (freq) * (prescaler + 1) ) ) - 1;
+
+	/*
+	 * If ARR value associated with proper frequency is larger than max allowed
+	 * ARR value, then increase the prescaler until ARR value is within acceptable range
+	 */
+	while ( ARRval >= 65535 )
+	{
+		prescaler++;
+		__HAL_TIM_SET_PRESCALER(&htim3, prescaler);
+		ARRval = (120000000 / ( (freq) * (prescaler + 1) ) ) - 1;
+	}
+
+	__HAL_TIM_SET_AUTORELOAD(&htim3, ARRval);
+
+}
+
+FRESULT InitFileSystem(void)
+{
+  FRESULT res;
+  res = f_mkfs(SDPath, FM_ANY, 0, workBuffer, sizeof(workBuffer));
+
+  if (res != FR_OK)
+  {
+    return res;
+  }
+
+  res = f_mount(&SDFatFS, (TCHAR const*)SDPath, 0);
+
+  if(res != FR_OK)
+  {
+    return res;
+  }
+
+  return res;
+}
+
+/*
+ * Fast implementation of an itoa type of function with LUT. Returns the length of number turned to string
+ * NOTE this only works for base 10 numbers 9999 or less
+ */
+int fast4DigitDecToStr(uint32_t value, char* dst) {
+
+
+  uint32_t length;
+
+  /* Comparison is much faster than mathematical calculation of length of number
+   * Since number is only 4 digits at most, no needs to check further
+   */
+  if (value < 10) length = 1;
+
+  else if (value < 100) length = 2;
+
+  else if (value < 1000) length = 3;
+
+  else if (value < 10000) length = 4;
+
+  uint32_t str_idx = length - 1;
+
+  /* Work buffer backwards for better performance, and use lookup table of two
+   * digits at a time to reduce number of divides
+   */
+  while (value >= 100) {
+
+    uint32_t digit_idx = (value % 100) * 2;
+
+    value /= 100;   // Divide by 100 since we are handling 2 digits at a time
+
+    dst[str_idx] = digits_LUT[digit_idx + 1];
+
+    dst[str_idx - 1] = digits_LUT[digit_idx];
+
+    str_idx -= 2;
+
+  }
+
+  // Handle last 1-2 digits
+
+  // Only one digit left to handle
+  if (value < 10) {
+
+    dst[str_idx] = '0' + value;
+
+  }
+  // Handle last 2 digits with LUT
+  else {
+
+    uint32_t digit_idx = value * 2;
+
+    dst[str_idx] = digits_LUT[digit_idx + 1];
+
+    dst[str_idx - 1] = digits_LUT[digit_idx];
+
+  }
+
+  return (int)length;
+
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  //Toggles ADC write state when user button is pressed
+  write_adc_data ^= 1;
+}
+
+static void Handle_Overflow(void)
+{
+  // Stop writing ADC since internal ring buffer can't handle more data
+   write_adc_data = 0;
+
+  /* Reset all of the ring buffer state variables
+   * in prep for restarting ADC reading
+   */
+  hRingBuff.readIdx = 0;
+  hRingBuff.writeIdx = 0;
+  hRingBuff.availableSamples = 0;
+
+  // Blink a few times to indicate overflow.
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+  HAL_Delay(200);
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+  HAL_Delay(200);
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+  HAL_Delay(200);
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+  HAL_Delay(200);
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+
+}
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+  if (write_adc_data)
+  {
+    RingBufferErrorCode = RingBuffer_feed(&hRingBuff, (uint8_t *)&adc_dma_buf[DMA_BUFF_LENGTH/2], DMA_BUFF_LENGTH/2);
+    if( RingBufferErrorCode != RB_ERR_OK )
+    {
+      if (RingBufferErrorCode == RB_ERR_OVERFLOW)
+      {
+        Handle_Overflow();
+      }
+    }
+  }
+}
+
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
+{
+  if (write_adc_data)
+  {
+    RingBufferErrorCode = RingBuffer_feed(&hRingBuff, (uint8_t *)&adc_dma_buf[0], DMA_BUFF_LENGTH/2);
+    if( RingBufferErrorCode != RB_ERR_OK )
+    {
+      if (RingBufferErrorCode == RB_ERR_OVERFLOW)
+      {
+        Handle_Overflow();
+      }
+    }
+  }
+}
+
+void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc)
+{
+  Error_Handler();
+}
 /* USER CODE END 4 */
 
  /* MPU Configuration */
@@ -259,6 +654,7 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
+    HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
   }
   /* USER CODE END Error_Handler_Debug */
 }
