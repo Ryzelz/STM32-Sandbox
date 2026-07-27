@@ -18,7 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "usart.h"
+#include "tim.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -87,8 +87,16 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART2_UART_Init();
+  MX_TIM2_Init();
+  MX_TIM3_Init();
+  MX_TIM4_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
+
+  HAL_TIM_Base_Start_IT(&htim2);
+  HAL_TIM_Base_Start_IT(&htim3);
+  HAL_TIM_Base_Start_IT(&htim4);
+  HAL_TIM_Base_Start_IT(&htim5);
 
   /* USER CODE END 2 */
 
@@ -150,6 +158,33 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_TIM_PeriodElapsedCallback could be implemented in the user file
+   */
+
+  if (htim -> Instance == TIM2) {
+	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+  }
+
+  if (htim -> Instance == TIM3) {
+  	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+    }
+
+  if (htim -> Instance == TIM4) {
+  	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_7);
+    }
+
+  if (htim -> Instance == TIM5) {
+  	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_8);
+    }
+}
+
 
 /* USER CODE END 4 */
 
